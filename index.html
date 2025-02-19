@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Trigrama de Nacimiento</title>
+  <!-- Fuente inspirada en la estética clásica -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel&display=swap" rel="stylesheet">
+  <style>
+    /* Fondo con imagen de dojo/martial arts (puedes cambiar la URL por otra de tu preferencia) */
+    body {
+      font-family: 'Cinzel', serif;
+      margin: 0;
+      padding: 0;
+      background: #2c1b0e;
+      background-image: url('https://source.unsplash.com/1600x900/?dojo,martialarts');
+      background-size: cover;
+      background-attachment: fixed;
+      color: #fdf7e3;
+      text-shadow: 1px 1px 2px #000;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 2.5em;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #d4af37; /* dorado para el toque kitsch */
+    }
+    form {
+      max-width: 400px;
+      margin: 30px auto;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border: 3px solid #d4af37;
+      border-radius: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    input[type="date"],
+    input[type="text"],
+    select {
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 2px solid #d4af37;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.8);
+      font-size: 1em;
+      color: #333;
+    }
+    .gender-options {
+      margin-bottom: 15px;
+    }
+    .gender-options input {
+      margin-right: 5px;
+    }
+    .gender-options label {
+      font-size: 1em;
+      display: inline-block;
+      margin-right: 15px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #d4af37;
+      border: none;
+      color: #2c1b0e;
+      border-radius: 5px;
+      font-size: 1.2em;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #b9972e;
+    }
+    .result {
+      max-width: 600px;
+      margin: 30px auto;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #d4af37;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    .result h2 {
+      margin-top: 0;
+      font-size: 2em;
+      color: #d4af37;
+    }
+    .result p {
+      font-size: 1.1em;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculadora de Trigrama de Nacimiento</h1>
+  <form id="trigramForm">
+    <label for="birthdate">Fecha de Nacimiento:</label>
+    <input type="date" id="birthdate" required>
+    
+    <div class="gender-options">
+      <label>Género:</label>
+      <input type="radio" id="male" name="gender" value="male" required>
+      <label for="male" style="display:inline;">Masculino</label>
+      <input type="radio" id="female" name="gender" value="female">
+      <label for="female" style="display:inline;">Femenino</label>
+    </div>
+    
+    <button type="submit">Calcular Trigrama</button>
+  </form>
+  
+  <div id="result" class="result" style="display:none;"></div>
+  
+  <script>
+    // Datos para cada trigrama
+    const trigramData = {
+      1: {
+        element: "Agua",
+        description: "Eres flexible, pero enfocado y determinado. Eres empático, artístico y proclive a la reflexión profunda, aunque a veces te preocupes de más.",
+        essenceColors: "Negro, índigo o azul oscuro",
+        feedingColors: "Dorado, plateado y gris",
+        feedingElement: "Metal",
+        shape: "Patrones ondulados y curvos",
+        materials: "Fuentes de metal, acuarios y piscinas",
+        bestDirection: "Sureste",
+        bestSleeping: "Norte"
+      },
+      2: {
+        element: "Tierra",
+        description: "Eres un gran cuidador y puedes ser un líder con intenciones terrenales.",
+        essenceColors: "Terracota, amarillo, marrones y beige",
+        feedingColors: "Rojo y púrpura",
+        feedingElement: "Fuego",
+        shape: "Cuadrado, objetos bajos que transmiten estabilidad",
+        materials: "Muebles a gran escala, arena, arcilla, cerámica, mármol, granito, piedras de río, cristales, adobe y estuco",
+        bestDirection: "Noreste",
+        bestSleeping: "Oeste"
+      },
+      3: {
+        element: "Madera",
+        description: "Sueles tener un temperamento equilibrado, aunque a veces puedes tener estallidos. Te gusta estar en movimiento y no disfrutas de trabajos sedentarios.",
+        essenceColors: "Verdes",
+        feedingColors: "Negro y azul",
+        feedingElement: "Agua",
+        shape: "Rectangular, columnas, patrones verticales u horizontales",
+        materials: "Árboles, plantas y flores frescas",
+        bestDirection: "Sur",
+        bestSleeping: "Este"
+      },
+      4: {
+        element: "Madera",
+        description: "Eres perspicaz y, a menudo, impulsado; sin embargo, puedes cambiar de opinión repentinamente. Tienes un lado muy creativo y artístico.",
+        essenceColors: "Verdes",
+        feedingColors: "Negro y azul",
+        feedingElement: "Agua",
+        shape: "Rectangular, columnas, patrones verticales u horizontales",
+        materials: "Árboles, plantas y flores frescas",
+        bestDirection: "Norte",
+        bestSleeping: "Sureste"
+      },
+      6: {
+        element: "Metal",
+        description: "Eres un líder nato y figura de autoridad, aunque a veces puedes mostrar una fuerte energía masculina y ser testarudo.",
+        essenceColors: "Blanco, dorado, plateado, cobrizo, colores reflectantes y pasteles",
+        feedingColors: "Tonos tierra, marrones, amarillos y crema",
+        feedingElement: "Tierra",
+        shape: "Oval, arcos, redondo",
+        materials: "Hierro, acero, cobre y objetos metálicos",
+        bestDirection: "Oeste",
+        bestSleeping: "Noroeste"
+      },
+      7: {
+        element: "Metal",
+        description: "Eres artístico, creativo, sociable y comunicativo.",
+        essenceColors: "Blanco, dorado, plateado, cobrizo, colores reflectantes y pasteles",
+        feedingColors: "Tonos tierra, marrones, amarillos y crema",
+        feedingElement: "Tierra",
+        shape: "Oval, arcos, redondo",
+        materials: "Hierro, acero, cobre y objetos metálicos",
+        bestDirection: "Noroeste",
+        bestSleeping: "Suroeste"
+      },
+      8: {
+        element: "Tierra",
+        description: "Eres muy estable; sin embargo, puedes ser terco. Además, mantienes una energía juvenil.",
+        essenceColors: "Terracota, amarillo, marrones y beige",
+        feedingColors: "Rojo y púrpura",
+        feedingElement: "Fuego",
+        shape: "Cuadrado, objetos bajos que transmiten estabilidad",
+        materials: "Muebles a gran escala, arena, arcilla, cerámica, mármol, granito, piedras de río, cristales, adobe y estuco",
+        bestDirection: "Suroeste",
+        bestSleeping: "Noreste"
+      },
+      9: {
+        element: "Fuego",
+        description: "Eres extremadamente activo, a veces hasta el punto de agotarte o enfermarte. Eres apasionado, pero también puedes ser de mal genio.",
+        essenceColors: "Rojos intensos, púrpuras, burdeos y arándano",
+        feedingColors: "Verde",
+        feedingElement: "Madera",
+        shape: "Triángulos, pirámides y formas altas y puntiagudas",
+        materials: "Velas, elementos rojos, iluminación intensa, lámparas y luces nocturnas",
+        bestDirection: "Este",
+        bestSleeping: "Sur"
+      }
+    };
+
+    // Funciones para sumar dígitos y reducir a un dígito único
+    function sumDigits(num) {
+      return String(num)
+        .split('')
+        .reduce((sum, digit) => sum + Number(digit), 0);
+    }
+    
+    function reduceToSingleDigit(num) {
+      while (num > 9) {
+        num = sumDigits(num);
+      }
+      return num;
+    }
+    
+    document.getElementById('trigramForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const birthdateInput = document.getElementById('birthdate').value;
+      const gender = document.querySelector('input[name="gender"]:checked').value;
+      
+      if (!birthdateInput) {
+        alert("Por favor, ingresa tu fecha de nacimiento.");
+        return;
+      }
+      
+      const birthDate = new Date(birthdateInput);
+      let year = birthDate.getFullYear();
+      const month = birthDate.getMonth() + 1; // JS: meses de 0 a 11
+      const day = birthDate.getDate();
+      
+      // Ajuste del año: si naciste entre el 1 de enero y el 5 de febrero, se resta 1 al año.
+      if ((month === 1) || (month === 2 && day <= 5)) {
+        year = year - 1;
+      }
+      
+      // Sumar los dígitos del año hasta obtener un dígito único
+      let sumYear = reduceToSingleDigit(year);
+      
+      let trigram;
+      if (gender === 'male') {
+        // Para varones: 11 menos el dígito
+        trigram = 11 - sumYear;
+        if (trigram === 5) {
+          trigram = 2;
+        }
+      } else if (gender === 'female') {
+        // Para mujeres: dígito más 4
+        trigram = sumYear + 4;
+        // Reducir si es necesario
+        trigram = reduceToSingleDigit(trigram);
+        if (trigram === 5) {
+          trigram = 8;
+        }
+      }
+      
+      // Aseguramos que el trigrama sea un dígito único
+      trigram = reduceToSingleDigit(trigram);
+      
+      // Obtenemos los datos del trigrama
+      const data = trigramData[trigram];
+      
+      let resultHtml = `<h2>Tu Trigrama es: ${trigram} (${data.element})</h2>`;
+      resultHtml += `<p><strong>Descripción:</strong> ${data.description}</p>`;
+      resultHtml += `<p><strong>Colores Esenciales:</strong> ${data.essenceColors}</p>`;
+      resultHtml += `<p><strong>Colores que te Alimentan:</strong> ${data.feedingColors}</p>`;
+      resultHtml += `<p><strong>Elemento que te Alimenta:</strong> ${data.feedingElement}</p>`;
+      resultHtml += `<p><strong>Forma:</strong> ${data.shape}</p>`;
+      resultHtml += `<p><strong>Materiales:</strong> ${data.materials}</p>`;
+      resultHtml += `<p><strong>Mejor Dirección Personal:</strong> ${data.bestDirection}</p>`;
+      resultHtml += `<p><strong>Mejor Ubicación para Dormir:</strong> ${data.bestSleeping}</p>`;
+      
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = resultHtml;
+      resultDiv.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
