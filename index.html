@@ -248,12 +248,16 @@
       let sumYear = reduceToSingleDigit(year);
       
       let trigram;
-      if (gender === 'male') {
-        // Para varones: 11 menos el dígito
-        trigram = 11 - sumYear;
-        if (trigram === 5) {
-          trigram = 2;
-        }
+if (gender === 'male') {
+  if (year < 2000) {
+    trigram = 10 - sumYear;
+  } else {
+    trigram = 9 - sumYear;
+  }
+  if (trigram === 5) {
+    trigram = 2;
+  }
+}
       } else if (gender === 'female') {
         // Para mujeres: dígito más 4
         trigram = sumYear + 4;
